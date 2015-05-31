@@ -10,6 +10,40 @@ var renderer = new THREE.WebGLRenderer();
 var camera;
 var scene;
 
+var width = 10;
+var height = 10;
+
+
+
+Array.matrix = function (m, n, initial) {
+         var a, i, j, mat = [];
+         for (i = 0; i < m; i += 1) {
+             a = [];
+             for (j = 0; j < n; j += 1) {
+                 a[j] = initial;
+             }
+mat[i] = a; }
+         return mat;
+     };
+
+Array.contains = function(obj)
+{
+    for(var i =0; i < this.length; i++)
+    {
+        if(this[i] === obj)
+        {
+            return true;
+        }
+    }
+    return false;
+};
+
+var board = Array.matrix(10,10);
+board.width = function (){ return board[0].length;};
+board.height = function (){ return board[0][0].length;};
+
+//var bubbleboard = new { width: 10, height: 10 }
+
 window.onload = init;
 
 	    // once everything is loaded, we run our Three.js stuff.
@@ -22,10 +56,6 @@ window.onload = init;
 
         // create a camera, which defines where we're looking at.
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-
-        //raycaster = new THREE.Raycaster();
-        //mouse = new THREE.Vector2();
 
         document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
@@ -61,14 +91,19 @@ window.onload = init;
 
     function addCubes (scene)
     {
+        //var cubeColors = new Array(0xffffff, 0xffffff * .5, 0xffffff * .8);
+
         for (var i = 0 ; i < 10; i++)
         {
             for (var j = 0 ; j < 10; j++)
             {
+
+                var colorChoice = 0xffffff * .5;
+
                 // create a cube
                 var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
 
-                var cubeMaterial = new THREE.MeshLambertMaterial({color: Math.random() * 0xffffff });
+                var cubeMaterial = new THREE.MeshLambertMaterial({color: colorChoice});
                 var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
                 // position the cube
@@ -77,6 +112,11 @@ window.onload = init;
                 cube.position.z = 0;
 
                 cube.name = "cube-" + i + j;
+                cube.x = i;
+                cube.y = j;
+
+                board[i][j] = cube;
+
                 // add the cube to the scene
                 scene.add(cube);
                 objects.push(cube);
@@ -97,13 +137,79 @@ window.onload = init;
         if (intersects.length > 0) 
         {
 
-            console.log(intersects[0].object.name);
-            intersects[0].object.color = 0xffffff;
+            //find all alike neighbors
+            //var neighbors = findNeighbors(intersects[0].object, [intersects[0].object]);
+
+            console.log(intersects[0].object.name + " Clicked");
+            //intersects[0].object.color = 0xffffff;
             scene.remove(intersects[0].object);
+            
+            //scene.remove(neighbors);
             renderer.render(scene, camera);
         }
     }
 
+
+
+function findNeighbors(cube, alreadyFoundNeighbors)
+{
+    //no more room to the left
+    if(cube.x != 0)
+    {
+        var left = board [cube.x - 1][cube.y]; 
+
+        if(left.color == cube.color && !alreadyFoundNeighbors.contains(left))
+        {
+            alreadyFoundNeighbors.add(left);
+            findNeighbors(left, alreadyFoundNeighbors);
+        }
+    } 
+ 
+    //no more room to the right
+    if(cube.x != board.width - 1)
+    {
+        var right = board [cube.x + 1][cube.y]; 
+        
+        if(right.color == cube.color && !alreadyFoundNeighbors.contains(left))
+        {
+            alreadyFoundNeighbors.add(right);
+            findNeighbors(right, alreadyFoundNeighbors);
+        }
+    }
+    
+    //no more room above
+    if(cube.y != board.height - 1)
+    {
+        var above = board [cube.x][cube.y + 1]; 
+        
+        if(above.color == cube.color && !alreadyFoundNeighbors.contains(left))
+        {
+            alreadyFoundNeighbors.add(above);
+            findNeighbors(above, alreadyFoundNeighbors);
+        }
+    }
+
+    //no more room below
+    if(cube.y != 0)
+    {
+        var below = board [cube.x][cube.y - 1]; 
+
+        if(below.color == cube.color && !alreadyFoundNeighbors.contains(left))
+        {
+            alreadyFoundNeighbors.add(below);
+            findNeighbors(below, alreadyFoundNeighbors);
+        }
+    }
+
+    return alreadyFoundNeighbors;
+
+    //if y is same but x is +1 or -1 then isNeighbor
+    //if x is same but y is +1 or -1 then isNeighbor
+    //if isNeighbor then if alreadyFoundNeighbor doesn't already contain cube then add cube
+
+    //foreach neighbor, find neighbors
+
+}
 
 
 
