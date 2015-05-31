@@ -2,37 +2,38 @@
 
 "use strict"
 
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
+var projector = new THREE.Projector();
+var objects = [];
+var renderer = new THREE.WebGLRenderer();
+var camera;
+var scene;
+
+window.onload = init;
+
 	    // once everything is loaded, we run our Three.js stuff.
     function init() 
     {
 
+
         // create a scene, that will hold all our elements such as objects, cameras and lights.
-        var scene = new THREE.Scene();
+        scene = new THREE.Scene();
 
         // create a camera, which defines where we're looking at.
-        var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-        // create a render and set the size
-        var renderer = new THREE.WebGLRenderer();
+
+        //raycaster = new THREE.Raycaster();
+        //mouse = new THREE.Vector2();
+
+        document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+
+        // initialize object to perform world/screen calculations
 
         renderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMapEnabled = true;
-
-        // create the ground plane
-        //var planeGeometry = new THREE.PlaneGeometry(60, 20);
-        //var planeMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
-        //var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-        //plane.receiveShadow = true;
-
-        // rotate and position the plane
-        //plane.rotation.x = -0.5 * Math.PI;
-        //plane.position.x = 15;
-        //plane.position.y = 0;
-        //plane.position.z = 0;
-
-        // add the plane to the scene
-        //scene.add(plane);
 
         addCubes(scene);
 
@@ -54,6 +55,8 @@
 
         // call the render function
         renderer.render(scene, camera);
+
+        document.addEventListener( 'mousedown', onDocumentMouseDown, false );
     }
 
     function addCubes (scene)
@@ -73,10 +76,34 @@
                 cube.position.y = (5 * i);
                 cube.position.z = 0;
 
+                cube.name = "cube-" + i + j;
                 // add the cube to the scene
                 scene.add(cube);
+                objects.push(cube);
             };
         };
     }
 
- window.onload = init;
+    function onDocumentMouseDown(event) 
+    {
+
+        var vector = new THREE.Vector3(( event.clientX / window.innerWidth ) * 2 - 1, -( event.clientY / window.innerHeight ) * 2 + 1, 0.5);
+        vector = vector.unproject(camera);
+
+        var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+
+        var intersects = raycaster.intersectObjects(objects);
+
+        if (intersects.length > 0) 
+        {
+
+            console.log(intersects[0].object.name);
+            intersects[0].object.color = 0xffffff;
+            scene.remove(intersects[0].object);
+            renderer.render(scene, camera);
+        }
+    }
+
+
+
+
