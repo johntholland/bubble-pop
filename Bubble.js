@@ -12,6 +12,7 @@ var scene;
 
 var width = 10;
 var height = 10;
+var score = 0;
 
 
 
@@ -75,6 +76,16 @@ function init() {
     // add the output of the renderer to the html element
     document.getElementById("WebGL-output").appendChild(renderer.domElement);
 
+    var scoreText = document.createElement('div');
+    scoreText.id = "score";
+    scoreText.style.position = 'absolute';
+    scoreText.style.width = 100;
+    scoreText.style.height = 100;
+    scoreText.innerHTML = "Score: 0";
+    scoreText.style.top = 200 + 'px';
+    scoreText.style.left = 200 + 'px';
+    document.body.appendChild(scoreText);
+
     // call the render function
     renderer.render(scene, camera);
 
@@ -137,9 +148,16 @@ function onDocumentMouseDown(event) {
         intersects[0].object.color = 0xffffff;
         //scene.remove(intersects[0].object);
 
+        if( neighbors.length < 2)
+            return;
+
         for (var i = 0; i < neighbors.length; i++) {
             scene.remove(neighbors[i]);
         }
+
+        score = score + (2 * neighbors.length);
+
+        document.getElementById('score').innerHTML = 'Score: ' + score;
 
         renderer.render(scene, camera);
     }
