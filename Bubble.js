@@ -1,6 +1,7 @@
 //bubble.js
+(function(){
 
-"use strict"
+"use strict";
 
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
@@ -12,6 +13,7 @@ var scene;
 
 var width = 10;
 var height = 10;
+var score = 0;
 
 
 
@@ -75,6 +77,16 @@ function init() {
     // add the output of the renderer to the html element
     document.getElementById("WebGL-output").appendChild(renderer.domElement);
 
+    var scoreText = document.createElement('div');
+    scoreText.id = "score";
+    scoreText.style.position = 'absolute';
+    scoreText.style.width = 100;
+    scoreText.style.height = 100;
+    scoreText.innerHTML = "Score: 0";
+    scoreText.style.top = 200 + 'px';
+    scoreText.style.left = 200 + 'px';
+    document.body.appendChild(scoreText);
+
     // call the render function
     renderer.render(scene, camera);
 
@@ -89,7 +101,7 @@ function addCubes(scene) {
     for (var y = 0; y < board.height(); y++) {
         for (var x = 0; x < board.width(); x++) {
 
-            var colorChoice = cubeColors[Math.floor(Math.random() * cubeColors.length)];;
+            var colorChoice = cubeColors[Math.floor(Math.random() * cubeColors.length)];
 
             // create a cube
             var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
@@ -115,8 +127,8 @@ function addCubes(scene) {
             // add the cube to the scene
             scene.add(cube);
             objects.push(cube);
-        };
-    };
+        }
+    }
 }
 
 function onDocumentMouseDown(event) {
@@ -137,15 +149,20 @@ function onDocumentMouseDown(event) {
         intersects[0].object.color = 0xffffff;
         //scene.remove(intersects[0].object);
 
+        if( neighbors.length < 2)
+            return;
+
         for (var i = 0; i < neighbors.length; i++) {
             scene.remove(neighbors[i]);
         }
 
+        score = score + (2 * neighbors.length);
+
+        document.getElementById('score').innerHTML = 'Score: ' + score;
+
         renderer.render(scene, camera);
     }
 }
-
-
 
 function findNeighbors(cube, alreadyFoundNeighbors) {
     alreadyFoundNeighbors.contains = function(obj) {
@@ -159,7 +176,7 @@ function findNeighbors(cube, alreadyFoundNeighbors) {
 
 
     //no more room to the left
-    if (cube.x != 0) {
+    if (cube.x !== 0) {
         var left = board[cube.x - 1][cube.y];
 
         if (left.color === cube.color && !alreadyFoundNeighbors.contains(left)) {
@@ -169,7 +186,7 @@ function findNeighbors(cube, alreadyFoundNeighbors) {
     }
 
     //no more room to the right
-    if (cube.x != board.width() - 1) {
+    if (cube.x !== board.width() - 1) {
         var right = board[cube.x + 1][cube.y];
 
         if (right.color === cube.color && !alreadyFoundNeighbors.contains(right)) {
@@ -180,7 +197,7 @@ function findNeighbors(cube, alreadyFoundNeighbors) {
 
 
     //no more room below
-    if (cube.y != 0) {
+    if (cube.y !== 0) {
         var below = board[cube.x][cube.y - 1];
 
         if (below.color === cube.color && !alreadyFoundNeighbors.contains(below)) {
@@ -190,7 +207,7 @@ function findNeighbors(cube, alreadyFoundNeighbors) {
     }
 
     //no more room above
-    if (cube.y != board.height() - 1) {
+    if (cube.y !== board.height() - 1) {
         var above = board[cube.x][cube.y + 1];
 
         if (above.color === cube.color && !alreadyFoundNeighbors.contains(above)) {
@@ -206,5 +223,7 @@ function findNeighbors(cube, alreadyFoundNeighbors) {
     //if isNeighbor then if alreadyFoundNeighbor doesn't already contain cube then add cube
 
     //foreach neighbor, find neighbors
-
 }
+
+
+})();
