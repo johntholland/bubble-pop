@@ -10,9 +10,33 @@ module.exports = function (grunt) {
             options:{"esnext": true},
             files: ['./*.js']
         },
+
+        uglify:
+        {
+            development:
+            {
+                files:
+                {
+                    './output/built.js': ['./*.js']
+                }
+            },
+            options: 
+            {
+                mangle: false,
+                beautify: true
+            },
+        },
+
+        clean:
+        {
+            options:{},
+            files: ['./output/built.js'],
+        },
     });
 
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.registerTask('default', ['jshint']);
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.registerTask('default', ['jshint','clean', 'uglify']);
 
 }; 
