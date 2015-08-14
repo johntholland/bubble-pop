@@ -77,15 +77,7 @@ function init() {
     // add the output of the renderer to the html element
     document.getElementById("WebGL-output").appendChild(renderer.domElement);
 
-    var scoreText = document.createElement('div');
-    scoreText.id = "score";
-    scoreText.style.position = 'absolute';
-    scoreText.style.width = 100;
-    scoreText.style.height = 100;
-    scoreText.innerHTML = "Score: 0";
-    scoreText.style.top = 200 + 'px';
-    scoreText.style.left = 200 + 'px';
-    document.body.appendChild(scoreText);
+    var scoreText = document.getElementById('score');
 
     // call the render function
     renderer.render(scene, camera);
@@ -116,7 +108,7 @@ function addCubes(scene) {
             cube.position.y = (5 * y);
             cube.position.z = 0;
 
-            cube.name = "cube-" + x + y;
+            cube.name = x + y;
             cube.x = x;
             cube.y = y;
 
