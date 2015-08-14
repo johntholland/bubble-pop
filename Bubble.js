@@ -146,22 +146,107 @@ function onDocumentMouseDown(event) {
         var neighbors = findNeighbors(intersects[0].object, [intersects[0].object]);
 
         console.log(intersects[0].object.name + " Clicked");
-        intersects[0].object.color = 0xffffff;
-        //scene.remove(intersects[0].object);
+
+        //intersects[0].object.color = 0xffffff;
+        
 
         if( neighbors.length < 2)
             return;
 
+        intersects[0].object.IsPopped = true;
+        //scene.remove(intersects[0].object);
+        
+
         for (var i = 0; i < neighbors.length; i++) {
-            scene.remove(neighbors[i]);
+            neighbors[i].IsPopped = true;
+            //scene.remove(neighbors[i]);
+
         }
 
+        shift()
         score = score + (2 * neighbors.length);
 
         document.getElementById('score').innerHTML = 'Score: ' + score;
 
         renderer.render(scene, camera);
     }
+}
+
+function shift()
+{
+    for (var i = board.length - 1; i >= 0; i--) 
+    {
+        //if all cubes in column are popped
+        if (AllCubesInColumnArePopped(i)) 
+            {
+                var cubesToMoveOver = CubesInColumnsLeftOf(i);
+                MoveCubesOver(cubesToMoveOver);
+            };
+        //move all columns to the left to the right one.
+
+        for (var j = board[0].length - 1; j >= 0; j--) 
+        {
+            if (board[i][j].IsPopped == true) 
+                {
+                    //move all cubes above this cube down 1
+                    var cubesToMoveDown = CubesAbove(board[i][j]);
+                    MoveCubesDown(cubesToMoveDown);
+                };
+        };
+    };
+}
+
+function AllCubesInColumnArePopped(column)
+{
+    for (var j = board[0].length - 1; j >= 0; j--) 
+        {
+            if (!(board[j][column].IsPopped == true))
+            {
+                return false
+            }
+        }
+
+        return true;
+}
+
+function CubesInColumnsLeftOf(column)
+{
+
+}
+
+function CubesAbove(cube)
+{
+    var listOfCubes = [];
+
+    //console.log("cubes above: " + cube.name);
+
+    var x = cube.x;
+
+    var startingY = cube.y;
+
+    for (var i = startingY + 1; i < board[x].length; i++) 
+    {
+        listOfCubes.push(board[x][i]);
+        //console.log(board[x][i]);
+    };
+    
+    return listOfCubes;
+}
+
+function MoveCubesDown(cubes)
+{
+    for (var i = cubes.length - 1; i >= 0; i--) {
+        cubes[i].y = cubes[i].y - 1;
+        cubes[i].position.y = cubes[i].position.y -5;
+    };
+}
+
+function MoveCubesOver(cubes)
+{
+    for (var i = cubes.length - 1; i >= 0; i--) {
+        cubes[i].x = cubes[i].x -1;
+        cubes[i].position.x =  cubes[i].position.x - 5;
+    };
 }
 
 function findNeighbors(cube, alreadyFoundNeighbors) {
@@ -221,8 +306,6 @@ function findNeighbors(cube, alreadyFoundNeighbors) {
     //if y is same but x is +1 or -1 then isNeighbor
     //if x is same but y is +1 or -1 then isNeighbor
     //if isNeighbor then if alreadyFoundNeighbor doesn't already contain cube then add cube
-
-    //foreach neighbor, find neighbors
 }
 
 
