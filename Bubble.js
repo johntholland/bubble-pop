@@ -73,7 +73,7 @@ function init() {
 
 function addCubes(scene) {
     var cubeColors = ["rgb(255,0,0)", "rgb(255,255,0)", "rgb(255,0,255)",
-        "rgb(0,255,0)", "rgb(255,125,0)"
+        "rgb(0,255,0)", "rgb(255,125,0)",  "rgb(0,125,255)"
     ];
 
     for (var column = 0; column < board.columns(); column++) {
@@ -153,50 +153,77 @@ function shift()
 {
     for (var column = board.columns() - 1; column >= 0; column--) 
     {
-        //if all cubes in column are popped
-        if (AllCubesInColumnArePopped(column)) 
-            {
-                //move all columns to the left to the right one.
-                var startingColumn = column;
-                for (var columnIndex = startingColumn - 1; columnIndex >= 0; columnIndex--) 
-                {
-                    MoveCubesOver(board[columnIndex]);
-                }
-            };
-
-
         for (var row = board.rows() - 1; row >= 0; row--) 
         {
             if (board[column][row] != null && board[column][row].IsPopped == true) 
                 {
+                    scene.remove(board[column][row]);
                     //move all cubes above this cube down 1
                     var cubesToMoveDown = CubesAbove(board[column][row]);
                     MoveCubesDown(cubesToMoveDown);
                 };
         };
+
+       
     };
+
+    for (var x = board.columns() - 1; x >= 0; x--)
+    {
+        for (var column = board.columns() - 1; column >= 0; column--) 
+        {
+             //if all cubes in column are popped
+            if (AllCubesInColumnArePopped(column)) 
+                {
+                    //move all columns on the left, to the right.
+                    var startingColumn = column;
+                    for (var columnIndex = startingColumn - 1; columnIndex >= 0; columnIndex--) 
+                    {
+                        MoveCubesOver(board[columnIndex]);
+                    }
+                };
+
+        };
+    }
+
+//     for (var column = board.columns() - 1; column >= 0; column--) 
+//     {
+//          //if all cubes in column are null
+//         if (AllCubesInColumnAreNull(column)) 
+//             {
+//                 //move all columns to the left to the right one.
+//                 var startingColumn = column;
+//                 for (var columnIndex = startingColumn - 1; columnIndex >= 0; columnIndex--) 
+//                 {
+//                     MoveCubesOver(board[columnIndex]);
+//                 }
+//             };
+//     };
 }
 
 function AllCubesInColumnArePopped(column)
 {
     for (var row = board.rows() - 1; row >= 0; row--) 
+    {
+        if ( board[column][row] != null && board[column][row].IsPopped != true)
         {
-            if ( board[column][row] != null && board[column][row].IsPopped != true)
-            {
-                return false
-            }
+            return false
         }
+    }
 
         return true;
 }
 
-function CubesInColumnsLeftOf(columnIndex)
+function AllCubesInColumnAreNull(column)
 {
-
-    for (var row = startingRow + 1; row < board.height(); row++) 
+    for (var row = board.rows() - 1; row >= 0; row--) 
     {
-
+        if ( board[column][row] != null)
+        {
+            return false
+        }
     }
+
+    return true;
 }
 
 function CubesAbove(cube)
@@ -232,6 +259,7 @@ function MoveCubesDown(cubes)
         cubeToMove.row = cubeToMove.row - 1;
 
         cubeToMove.position.y = cubeToMove.position.y -5;
+        renderer.render(scene, camera);
     };
 }
 
@@ -242,18 +270,19 @@ function MoveCubesOver(cubes)
 
         if(cubes[i] != null)
         {
-        var cubeToMove = cubes[i];
-        
-        //move cube down one in board
-        board[cubeToMove.column +1][cubeToMove.row] = cubeToMove;
+            var cubeToMove = cubes[i];
 
-        //remove what was this cube
-        board[cubeToMove.column][cubeToMove.row] = null;
-        
-        //move cube row identifier down one
-        cubeToMove.column = cubeToMove.column + 1;
+            //move cube down one in board
+            board[cubeToMove.column +1][cubeToMove.row] = cubeToMove;
 
-        cubeToMove.position.x = cubeToMove.position.x +5;
+            //remove what was this cube
+            board[cubeToMove.column][cubeToMove.row] = null;
+
+            //move cube row identifier down one
+            cubeToMove.column = cubeToMove.column + 1;
+
+            cubeToMove.position.x = cubeToMove.position.x +5;
+            renderer.render(scene, camera);
         }
     };
 }
