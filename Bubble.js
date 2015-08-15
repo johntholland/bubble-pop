@@ -3,10 +3,8 @@
 
 "use strict";
 
-var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
 var projector = new THREE.Projector();
-var objects = [];
 var renderer = new THREE.WebGLRenderer();
 var camera;
 var scene;
@@ -37,8 +35,6 @@ board.height = function() {
     return this[0].length;
 };
 
-//var bubbleboard = new { width: 10, height: 10 }
-
 window.onload = init;
 
 // once everything is loaded, we run our Three.js stuff.
@@ -50,8 +46,6 @@ function init() {
 
     // create a camera, which defines where we're looking at.
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-
-    document.addEventListener('mousedown', onDocumentMouseDown, false);
 
     // initialize object to perform world/screen calculations
 
@@ -87,7 +81,7 @@ function init() {
 
 function addCubes(scene) {
     var cubeColors = ["rgb(255,0,0)", "rgb(255,255,0)", "rgb(255,0,255)",
-        "rgb(0,255,0)"
+        "rgb(0,255,0)", "rgb(255,125,0)"
     ];
 
     for (var y = 0; y < board.height(); y++) {
@@ -118,7 +112,6 @@ function addCubes(scene) {
 
             // add the cube to the scene
             scene.add(cube);
-            objects.push(cube);
         }
     }
 }
@@ -130,29 +123,26 @@ function onDocumentMouseDown(event) {
 
     var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
 
-    var intersects = raycaster.intersectObjects(objects);
+    var intersects = raycaster.intersectObjects(scene.children);
 
     if (intersects.length > 0) {
 
         //find all alike neighbors
         var neighbors = findNeighbors(intersects[0].object, [intersects[0].object]);
-
-        console.log(intersects[0].object.name + " Clicked");
-
-        //intersects[0].object.color = 0xffffff;
         
+        console.log(intersects[0].object.x + intersects[0].object.y + " Clicked");
+
+        intersects[0].object.color = 0xffff00;
+        renderer.render(scene, camera);
 
         if( neighbors.length < 2)
             return;
-
-        intersects[0].object.IsPopped = true;
-        //scene.remove(intersects[0].object);
         
 
         for (var i = 0; i < neighbors.length; i++) {
             neighbors[i].IsPopped = true;
-            //scene.remove(neighbors[i]);
-
+            scene.remove(neighbors[i]);
+            board[neighbors[i].x, neighbors[i].y] = null;
         }
 
         shift()
