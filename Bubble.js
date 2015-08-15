@@ -28,10 +28,10 @@ Array.matrix = function(m, n, initial) {
 
 var board = Array.matrix(columns, rows, 0);
 
-board.width = function() {
+board.columns = function() {
     return this.length;
 };
-board.height = function() {
+board.rows = function() {
     return this[0].length;
 };
 
@@ -76,8 +76,8 @@ function addCubes(scene) {
         "rgb(0,255,0)", "rgb(255,125,0)"
     ];
 
-    for (var column = 0; column < board.width(); column++) {
-        for (var row = 0; row < board.height(); row++) {
+    for (var column = 0; column < board.columns(); column++) {
+        for (var row = 0; row < board.rows(); row++) {
 
             var colorChoice = cubeColors[Math.floor(Math.random() * cubeColors.length)];
 
@@ -151,17 +151,21 @@ function onDocumentMouseDown(event) {
 
 function shift()
 {
-    for (var column = board.width() - 1; column >= 0; column--) 
+    for (var column = board.columns() - 1; column >= 0; column--) 
     {
         //if all cubes in column are popped
         if (AllCubesInColumnArePopped(column)) 
             {
-                var cubesToMoveOver = CubesInColumnsLeftOf(column);
-                MoveCubesOver(cubesToMoveOver);
+                //move all columns to the left to the right one.
+                var startingColumn = column;
+                for (var columnIndex = startingColumn - 1; columnIndex >= 0; columnIndex--) 
+                {
+                    MoveCubesOver(board[columnIndex]);
+                }
             };
-        //move all columns to the left to the right one.
 
-        for (var row = board.height() - 1; row >= 0; row--) 
+
+        for (var row = board.rows() - 1; row >= 0; row--) 
         {
             if (board[column][row] != null && board[column][row].IsPopped == true) 
                 {
@@ -175,7 +179,7 @@ function shift()
 
 function AllCubesInColumnArePopped(column)
 {
-    for (var row = board.height() - 1; row >= 0; row--) 
+    for (var row = board.rows() - 1; row >= 0; row--) 
         {
             if ( board[column][row] != null && board[column][row].IsPopped != true)
             {
@@ -186,26 +190,27 @@ function AllCubesInColumnArePopped(column)
         return true;
 }
 
-function CubesInColumnsLeftOf(column)
+function CubesInColumnsLeftOf(columnIndex)
 {
 
+    for (var row = startingRow + 1; row < board.height(); row++) 
+    {
+
+    }
 }
 
 function CubesAbove(cube)
 {
     var listOfCubes = [];
 
-    //console.log("cubes above: " + cube.name);
-
     var startingRow = cube.row;
 
-    for (var row = startingRow + 1; row < board.height(); row++) 
+    for (var row = startingRow + 1; row < board.rows(); row++) 
     {
         if(board[cube.column][row] != null)
         {
             listOfCubes.push(board[cube.column][row]);
         }
-        //console.log(board[x][i]);
     };
     
     return listOfCubes;
@@ -232,7 +237,25 @@ function MoveCubesDown(cubes)
 
 function MoveCubesOver(cubes)
 {
+    for (var i = 0; i <= cubes.length -1; i++) 
+    {
 
+        if(cubes[i] != null)
+        {
+        var cubeToMove = cubes[i];
+        
+        //move cube down one in board
+        board[cubeToMove.column +1][cubeToMove.row] = cubeToMove;
+
+        //remove what was this cube
+        board[cubeToMove.column][cubeToMove.row] = null;
+        
+        //move cube row identifier down one
+        cubeToMove.column = cubeToMove.column + 1;
+
+        cubeToMove.position.x = cubeToMove.position.x +5;
+        }
+    };
 }
 
 function findNeighbors(cube, alreadyFoundNeighbors) {
@@ -257,7 +280,7 @@ function findNeighbors(cube, alreadyFoundNeighbors) {
     }
 
     //no more room to the right
-    if (cube.column !== board.width() - 1 && board[cube.column + 1][cube.row] != null) {
+    if (cube.column !== board.columns() - 1 && board[cube.column + 1][cube.row] != null) {
         var right = board[cube.column + 1][cube.row];
 
         if (right.color === cube.color && !alreadyFoundNeighbors.contains(right)) {
@@ -278,7 +301,7 @@ function findNeighbors(cube, alreadyFoundNeighbors) {
     }
 
     //no more room above
-    if (cube.row !== board.height() - 1 && board[cube.column][cube.row + 1] != null) {
+    if (cube.row !== board.rows() - 1 && board[cube.column][cube.row + 1] != null) {
         var above = board[cube.column][cube.row + 1];
 
         if (above.color === cube.color && !alreadyFoundNeighbors.contains(above)) {
