@@ -4,13 +4,12 @@
 "use strict";
 
 var mouse = new THREE.Vector2();
-var projector = new THREE.Projector();
 var renderer = new THREE.WebGLRenderer();
-var camera;
-var scene;
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+var scene = new THREE.Scene();
 
-var width = 10;
-var height = 10;
+var columns = 9;
+var rows = 9;
 var score = 0;
 
 
@@ -27,7 +26,8 @@ Array.matrix = function(m, n, initial) {
     return mat;
 };
 
-var board = Array.matrix(10, 10, 0);
+var board = Array.matrix(columns, rows, 0);
+
 board.width = function() {
     return this.length;
 };
@@ -39,16 +39,8 @@ window.onload = init;
 
 // once everything is loaded, we run our Three.js stuff.
 function init() {
-
-
-    // create a scene, that will hold all our elements such as objects, cameras and lights.
-    scene = new THREE.Scene();
-
-    // create a camera, which defines where we're looking at.
-    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-
+    
     // initialize object to perform world/screen calculations
-
     renderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMapEnabled = true;
@@ -84,8 +76,8 @@ function addCubes(scene) {
         "rgb(0,255,0)", "rgb(255,125,0)"
     ];
 
-    for (var y = 0; y < board.height(); y++) {
-        for (var x = 0; x < board.width(); x++) {
+    for (var column = 0; column < board.width(); column++) {
+        for (var row = 0; row < board.height(); row++) {
 
             var colorChoice = cubeColors[Math.floor(Math.random() * cubeColors.length)];
 
@@ -98,17 +90,16 @@ function addCubes(scene) {
             var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 
             // position the cube
-            cube.position.x = (5 * x) - 11;
-            cube.position.y = (5 * y);
+            cube.position.x = (5 * column) - 11;
+            cube.position.y = (5 * row);
             cube.position.z = 0;
-
-            cube.name = x + y;
-            cube.x = x;
-            cube.y = y;
-
+            cube.IsPopped = false;
+            cube.Identifier = column + "" + row;
+            cube.column = column;
+            cube.row = row;
             cube.color = colorChoice;
 
-            board[x][y] = cube;
+            board[column][row] = cube;
 
             // add the cube to the scene
             scene.add(cube);
@@ -130,10 +121,8 @@ function onDocumentMouseDown(event) {
         //find all alike neighbors
         var neighbors = findNeighbors(intersects[0].object, [intersects[0].object]);
         
-        console.log(intersects[0].object.x + intersects[0].object.y + " Clicked");
-
-        intersects[0].object.color = 0xffff00;
-        renderer.render(scene, camera);
+        console.log(intersects[0].object.column + "" + intersects[0].object.row + " Clicked");
+        
 
         if( neighbors.length < 2)
             return;
@@ -141,11 +130,17 @@ function onDocumentMouseDown(event) {
 
         for (var i = 0; i < neighbors.length; i++) {
             neighbors[i].IsPopped = true;
-            scene.remove(neighbors[i]);
-            board[neighbors[i].x, neighbors[i].y] = null;
+            neighbors[i].material = new THREE.MeshLambertMaterial({color: 0xffffff});
         }
+        renderer.render(scene, camera);
+
 
         shift()
+
+        for (var neighborCount = 0; neighborCount < neighbors.length; neighborCount++) {
+            scene.remove(neighbors[neighborCount]);
+        }
+        renderer.render(scene, camera);
         score = score + (2 * neighbors.length);
 
         document.getElementById('score').innerHTML = 'Score: ' + score;
@@ -156,22 +151,22 @@ function onDocumentMouseDown(event) {
 
 function shift()
 {
-    for (var i = board.length - 1; i >= 0; i--) 
+    for (var column = board.width() - 1; column >= 0; column--) 
     {
         //if all cubes in column are popped
-        if (AllCubesInColumnArePopped(i)) 
+        if (AllCubesInColumnArePopped(column)) 
             {
-                var cubesToMoveOver = CubesInColumnsLeftOf(i);
+                var cubesToMoveOver = CubesInColumnsLeftOf(column);
                 MoveCubesOver(cubesToMoveOver);
             };
         //move all columns to the left to the right one.
 
-        for (var j = board[0].length - 1; j >= 0; j--) 
+        for (var row = board.height() - 1; row >= 0; row--) 
         {
-            if (board[i][j].IsPopped == true) 
+            if (board[column][row] != null && board[column][row].IsPopped == true) 
                 {
                     //move all cubes above this cube down 1
-                    var cubesToMoveDown = CubesAbove(board[i][j]);
+                    var cubesToMoveDown = CubesAbove(board[column][row]);
                     MoveCubesDown(cubesToMoveDown);
                 };
         };
@@ -180,9 +175,9 @@ function shift()
 
 function AllCubesInColumnArePopped(column)
 {
-    for (var j = board[0].length - 1; j >= 0; j--) 
+    for (var row = board.height() - 1; row >= 0; row--) 
         {
-            if (!(board[j][column].IsPopped == true))
+            if ( board[column][row] != null && board[column][row].IsPopped != true)
             {
                 return false
             }
@@ -202,13 +197,14 @@ function CubesAbove(cube)
 
     //console.log("cubes above: " + cube.name);
 
-    var x = cube.x;
+    var startingRow = cube.row;
 
-    var startingY = cube.y;
-
-    for (var i = startingY + 1; i < board[x].length; i++) 
+    for (var row = startingRow + 1; row < board.height(); row++) 
     {
-        listOfCubes.push(board[x][i]);
+        if(board[cube.column][row] != null)
+        {
+            listOfCubes.push(board[cube.column][row]);
+        }
         //console.log(board[x][i]);
     };
     
@@ -217,18 +213,26 @@ function CubesAbove(cube)
 
 function MoveCubesDown(cubes)
 {
-    for (var i = cubes.length - 1; i >= 0; i--) {
-        cubes[i].y = cubes[i].y - 1;
-        cubes[i].position.y = cubes[i].position.y -5;
+    for (var i = 0; i <= cubes.length -1; i++) {
+
+        var cubeToMove = cubes[i];
+        
+        //move cube down one in board
+        board[cubeToMove.column][cubeToMove.row - 1] = cubeToMove;
+
+        //remove what was this cube
+        board[cubeToMove.column][cubeToMove.row] = null;
+        
+        //move cube row identifier down one
+        cubeToMove.row = cubeToMove.row - 1;
+
+        cubeToMove.position.y = cubeToMove.position.y -5;
     };
 }
 
 function MoveCubesOver(cubes)
 {
-    for (var i = cubes.length - 1; i >= 0; i--) {
-        cubes[i].x = cubes[i].x -1;
-        cubes[i].position.x =  cubes[i].position.x - 5;
-    };
+
 }
 
 function findNeighbors(cube, alreadyFoundNeighbors) {
@@ -243,8 +247,8 @@ function findNeighbors(cube, alreadyFoundNeighbors) {
 
 
     //no more room to the left
-    if (cube.x !== 0) {
-        var left = board[cube.x - 1][cube.y];
+    if (cube.column !== 0 && board[cube.column - 1][cube.row] != null) {
+        var left = board[cube.column - 1][cube.row];
 
         if (left.color === cube.color && !alreadyFoundNeighbors.contains(left)) {
             alreadyFoundNeighbors.push(left);
@@ -253,8 +257,8 @@ function findNeighbors(cube, alreadyFoundNeighbors) {
     }
 
     //no more room to the right
-    if (cube.x !== board.width() - 1) {
-        var right = board[cube.x + 1][cube.y];
+    if (cube.column !== board.width() - 1 && board[cube.column + 1][cube.row] != null) {
+        var right = board[cube.column + 1][cube.row];
 
         if (right.color === cube.color && !alreadyFoundNeighbors.contains(right)) {
             alreadyFoundNeighbors.push(right);
@@ -264,8 +268,8 @@ function findNeighbors(cube, alreadyFoundNeighbors) {
 
 
     //no more room below
-    if (cube.y !== 0) {
-        var below = board[cube.x][cube.y - 1];
+    if (cube.row !== 0 && board[cube.column][cube.row - 1] != null) {
+        var below = board[cube.column][cube.row - 1];
 
         if (below.color === cube.color && !alreadyFoundNeighbors.contains(below)) {
             alreadyFoundNeighbors.push(below);
@@ -274,8 +278,8 @@ function findNeighbors(cube, alreadyFoundNeighbors) {
     }
 
     //no more room above
-    if (cube.y !== board.height() - 1) {
-        var above = board[cube.x][cube.y + 1];
+    if (cube.row !== board.height() - 1 && board[cube.column][cube.row + 1] != null) {
+        var above = board[cube.column][cube.row + 1];
 
         if (above.color === cube.color && !alreadyFoundNeighbors.contains(above)) {
             alreadyFoundNeighbors.push(above);
