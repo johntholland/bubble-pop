@@ -140,13 +140,40 @@ function onDocumentMouseDown(event) {
         for (var neighborCount = 0; neighborCount < neighbors.length; neighborCount++) {
             scene.remove(neighbors[neighborCount]);
         }
-        renderer.render(scene, camera);
+
+
         score = score + (2 * neighbors.length);
-
         document.getElementById('score').innerHTML = 'Score: ' + score;
-
         renderer.render(scene, camera);
+
+        //search for any possible moves left
+        if(!areMovesLeft())
+        {
+            alert("Happy Anniversary Plakiakimou! your loving husband, John");
+        }
     }
+}
+
+function areMovesLeft()
+{
+    for (var column = 0; column < board.columns(); column++) 
+    {
+        for (var row = 0; row < board.rows(); row++) 
+        {
+            var found;
+            if(board[column][row] != null)
+            {
+                found =  findNeighbors(board[column][row], [board[column][row]]);
+            }
+
+            if(found.length > 1)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 function shift()
@@ -184,20 +211,6 @@ function shift()
 
         };
     }
-
-//     for (var column = board.columns() - 1; column >= 0; column--) 
-//     {
-//          //if all cubes in column are null
-//         if (AllCubesInColumnAreNull(column)) 
-//             {
-//                 //move all columns to the left to the right one.
-//                 var startingColumn = column;
-//                 for (var columnIndex = startingColumn - 1; columnIndex >= 0; columnIndex--) 
-//                 {
-//                     MoveCubesOver(board[columnIndex]);
-//                 }
-//             };
-//     };
 }
 
 function AllCubesInColumnArePopped(column)
