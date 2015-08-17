@@ -147,10 +147,10 @@ function onDocumentMouseDown(event) {
         renderer.render(scene, camera);
 
         //search for any possible moves left
-        if(!areMovesLeft())
-        {
-            alert("Happy Anniversary Plakiakimou! your loving husband, John");
-        }
+        // if(!areMovesLeft())
+        // {
+        //     alert("Happy Anniversary Plakiakimou! your loving husband, John");
+        // }
     }
 }
 
