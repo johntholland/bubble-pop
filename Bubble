@@ -121,6 +121,10 @@ function animateScene()
 
 function fallingAnimation(cubesToAnimate)
 { 
+    // At first, we increase the y rotation of the triangle mesh and decrease the x 
+    // rotation of the square mesh. 
+ 
+
     for (var count = 0; count <= cubesToAnimate.length -1; count++) 
     {
             if (cubesToAnimate[count] != null) 
@@ -323,14 +327,9 @@ function CubesAbove(cube)
     return listOfCubes;
 }
 
-
 function MoveCubesDown(cubes)
 {
-
-
-    for (var i = 0; i <= cubes.length -1; i++) 
-    {
-
+    for (var i = 0; i <= cubes.length -1; i++) {
 
         var cubeToMove = cubes[i];
         
@@ -343,18 +342,16 @@ function MoveCubesDown(cubes)
         //move cube row identifier down one
         cubeToMove.row = cubeToMove.row - 1;
 
+
+        
+
         //cubeToMove.position.y = cubeToMove.position.y -5;
         
     };
-
-
-    for (var i = 4; i >= 0; i--) 
-    {
-        setTimeout(fallingAnimation(cubes),1000);
-        //fallingAnimation(cubes);
+            for (var i = 4; i >= 0; i--) {
+            setTimeout(function(){fallingAnimation(cubes)},400);
+        };
         renderer.render(scene, camera);
-    };
-            
 }
 
 function MoveCubesOver(cubes)
