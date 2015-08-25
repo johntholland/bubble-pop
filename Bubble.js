@@ -43,7 +43,7 @@ function init() {
     
     // initialize object to perform world/screen calculations
     renderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(window.innerWidth, window.innerHeight - 20);
     renderer.shadowMapEnabled = true;
 
     // // Load the background texture
@@ -144,7 +144,8 @@ function addCubes() {
             var colorChoice = cubeColors[Math.floor(Math.random() * cubeColors.length)];
 
             // create a cube
-            var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+            //var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+            var cubeGeometry = new THREE.SphereGeometry(2.3,20,20);
 
             var cubeMaterial = new THREE.MeshLambertMaterial({
                 color: colorChoice

@@ -9,6 +9,7 @@
         <script type="text/javascript" src="./libs/dat.gui.js"></script>
         <script type="text/javascript" src="./libs/Projector.js"></script>
         <script type="text/javascript" src="./bubble.js"></script>
+        <link rel="stylesheet" type="text/css" href="style.css">
         <style>
             body {
                 /* set margin to 0 and overflow to hidden, to go fullscreen */
@@ -21,11 +22,14 @@
 
 
     <body>
+    
 
         <!-- Div which will hold the Output -->
-        <div id="WebGL-output">
-                <div id="score">Score: 0</div>
-                <button hre onclick="undo()" id="undobutton">Undo</button>
-        </div>
+        <div id="WebGL-output"></div>
+
+            <div id="bannerbar" class="bannerbar">
+        <div id="score" class="flex-item">Score: 0</div>
+        <button href onclick="undo()" id="undobutton" class=".flex-button">Undo</button>
+    </div>
     </body>
 </html>
