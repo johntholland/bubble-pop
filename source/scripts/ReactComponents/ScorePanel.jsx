@@ -5,7 +5,7 @@
         return
         (
             <div>React is working!</div>
-        )
+        );
     }
 });
 

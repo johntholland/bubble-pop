@@ -9,7 +9,4 @@ module.exports = React.createClass
         )
     }
 });
-
-
-
 },{}]},{},[1])

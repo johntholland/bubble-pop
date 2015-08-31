@@ -1,0 +1,21 @@
+{
+  "name": "ThreeLab",
+  "version": "0.1.0",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "postal.js": "~0.12.0",
+    "when": "~3.4.5",
+    "react": "~0.13.1",
+    "three.js": "*",
+    "oboe": "~2.0.2"
+  },
+  "devDependencies": {}
+}

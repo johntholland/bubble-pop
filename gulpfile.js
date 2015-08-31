@@ -3,86 +3,66 @@ var args = require('yargs');
 var config = require('./gulp.config')();
 var $ = require('gulp-load-plugins')({lazy: true});
 
-gulp.task('hello-world', function () { console.log('Ourfirst helloworld in gulp!')});
+//jsx transform then concat to app.js
+//javascript concat to app.js
+//nodemodules concat to lib.js
+//styl transform and concat to style.css 
 
-gulp.task
-('quality-control', 
-	function () 
-	{ 
-		return gulp.src(config.sourceJSFiles)
-		.pipe($.if(args.verbose, $.print()))
-		.pipe($.jscs())
-		.pipe($.jshint())
-		.pipe($.jshint.reporter('jshint-stylish', {verbose: true}));
-		console.log('Successfully completed quality-control check');
-	}
-);
+function makeHTML(titleText, appjsFileName, styleFileName)
+{
+    var title = "<title>" + titleText + "</title>\n";
+    var app = "<script type='text/javascript' src='./" + appjsFileName + "'></script>\n";
+    var styling = "<link rel='stylesheet' type='text/css' href='" + styleFileName + "'> \n"; 
+    var head = "<head>\n" + title + app + styling +"</head> \n\n";
+    var body = "<body>\n <div id='anchor'></div>\n</body>\n";
+    var htmlString = "<!DOCTYPE html> \n" + "<html>\n"+ head + body +" </html>";
 
-gulp.task
-('browserify-react', 
-	function () 
-	{ 
-		return gulp.src(config.sourceReactAppJsx)
-		.pipe($.react())
-		.pipe($.browserify({
-          insertGlobals : true
-        }))
-		.pipe(gulp.dest('./output'));
+    return htmlString;
+}
 
-		console.log('Successfully transformed and moved jsx components');
-	}
-);
+function move(thingToMove) 
+{ 
+    return gulp.src(thingToMove)
+    .pipe(gulp.dest('./output'));
+}
 
-gulp.task
-('transform-react-appjsx', 
-	function () 
-	{ 
-		return gulp.src(config.sourceReactAppJsx)
-		.pipe($.if(args.verbose, $.print()))
-		.pipe($.react())
-		.pipe(gulp.dest('./output'));
+function qualityControl()
+{
+    return gulp.src(config.sourceJSFiles)
+            .pipe($.if(args.verbose, $.print()))
+            .pipe($.jscs())
+            .pipe($.jshint())
+            .pipe($.jshint.reporter('jshint-stylish', { verbose: true }));
+}
 
-		console.log('Successfully transformed and moved app jsx file');
-	}
-);
+var transformJsx = function() 
+{ 
+    return gulp.src(config.sourceReactComponents)
+    .pipe($.react())
+    .pipe(gulp.dest('./output/development-output/'));
+}
 
-gulp.task
-('transform-react-components', 
-	function () 
-	{ 
-		return gulp.src(config.sourceReactComponents)
-		.pipe($.if(args.verbose, $.print()))
-		.pipe($.react())
-		.pipe(gulp.dest('./output'));
+function transformStyls() 
+{ 
+    return gulp.src(config.sourceStyles)
+    .pipe($.if(args.verbose, $.print()))
+    .pipe($.stylus())
+    .pipe(gulp.dest('./output'));
+}
 
-		console.log('Successfully transformed and moved app jsx file');
-	}
-);
+function browserify() 
+{ 
+    return gulp.src(config.sourceReactAppJsx)
+    .pipe($.react())
+    .pipe($.browserify({insertGlobals : true}))
+    .pipe(gulp.dest('./output'));
+}
 
-gulp.task
-('move-html', 
-	function () 
-	{ 
-		return gulp.src(config.sourceHtml)
-		.pipe($.if(args.verbose, $.print()))
-		.pipe(gulp.dest('./output'));
 
-		console.log('Successfully moved html views');
-	}
-);
+gulp.task('quality-control', qualityControl);
+gulp.task('transformJsx', transformJsx());
+gulp.task('move-html', move("html"));
+gulp.task('transformStyls', transformStyls());
+gulp.task('browserify', browserify());
 
-gulp.task
-('transform-styls', 
-	function () 
-	{ 
-		return gulp.src(config.sourceStyles)
-		.pipe($.if(args.verbose, $.print()))
-		.pipe($.stylus())
-		.pipe(gulp.dest('./output'));
-
-		console.log('Successfully transformed and moved styl styles');
-	}
-);
-
-gulp.task
-('dev', ['transform-styls', 'move-html','transform-react-appjsx','transform-react-components']);
+gulp.task('dev', ['transform-styls', 'move-html','transform-react-appjsx','transform-react-components']);
