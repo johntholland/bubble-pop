@@ -8,3 +8,8 @@ flex-button {
 bannerbar {
   display: flex;
 }
+body {
+  margin: 0;
+  overflow: hidden;
+  background-color: #ff0059;
+}

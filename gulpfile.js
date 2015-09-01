@@ -18,51 +18,67 @@ function makeHTML(titleText, appjsFileName, styleFileName)
     var htmlString = "<!DOCTYPE html> \n" + "<html>\n"+ head + body +" </html>";
 
     return htmlString;
-}
+};
 
-function move(thingToMove) 
+function move() 
 { 
-    return gulp.src(thingToMove)
+    var gulpSource;
+    if(args.html)
+    {
+        gulpSource = config.sourceHtml;
+    }
+    else if(args.jsx)
+    {
+        gulpSource = config.sourceReactComponents;
+    }
+
+    return gulp.src(gulpSource)
     .pipe(gulp.dest('./output'));
-}
+};
 
-function qualityControl()
-{
-    return gulp.src(config.sourceJSFiles)
-            .pipe($.if(args.verbose, $.print()))
-            .pipe($.jscs())
-            .pipe($.jshint())
-            .pipe($.jshint.reporter('jshint-stylish', { verbose: true }));
-}
+// function qualityControl()
+// {
+//     return gulp.src(config.sourceJSFiles)
+//             .pipe($.if(args.verbose, $.print()))
+//             .pipe($.jscs())
+//             .pipe($.jshint())
+//             .pipe($.jshint.reporter('jshint-stylish', { verbose: true }));
+// };
 
-var transformJsx = function() 
+function transformJsx() 
 { 
     return gulp.src(config.sourceReactComponents)
     .pipe($.react())
-    .pipe(gulp.dest('./output/development-output/'));
-}
+    .pipe(gulp.dest(output_development));
+};
 
 function transformStyls() 
 { 
     return gulp.src(config.sourceStyles)
-    .pipe($.if(args.verbose, $.print()))
     .pipe($.stylus())
-    .pipe(gulp.dest('./output'));
-}
+    .pipe(gulp.dest(output_development));
+};
 
-function browserify() 
-{ 
-    return gulp.src(config.sourceReactAppJsx)
-    .pipe($.react())
-    .pipe($.browserify({insertGlobals : true}))
-    .pipe(gulp.dest('./output'));
-}
+// function browserify() 
+// { 
+//     return gulp.src(config.sourceReactAppJsx)
+//     .pipe($.react())
+//     .pipe($.browserify({insertGlobals : true}))
+//     .pipe(gulp.dest('./output'));
+// };
+
+function moveViews() 
+{
+  gulp.src(config.sourceHtml)
+  .pipe(gulp.dest(output_development));
+};
 
 
-gulp.task('quality-control', qualityControl);
-gulp.task('transformJsx', transformJsx());
-gulp.task('move-html', move("html"));
-gulp.task('transformStyls', transformStyls());
-gulp.task('browserify', browserify());
+// gulp.task('quality-control', qualityControl);
+gulp.task('transform-move-Jsx', transformJsx);
 
-gulp.task('dev', ['transform-styls', 'move-html','transform-react-appjsx','transform-react-components']);
+gulp.task('transform-styls', transformStyls);
+// gulp.task('browserify', browserify());
+
+ gulp.task('dev', ['transform-styls','transform-move-Jsx']);
+ gulp.task('prod', ['transform-styls','transform-move-Jsx']);
