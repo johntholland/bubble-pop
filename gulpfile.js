@@ -20,21 +20,21 @@ function makeHTML(titleText, appjsFileName, styleFileName)
     return htmlString;
 };
 
-function move() 
-{ 
-    var gulpSource;
-    if(args.html)
-    {
-        gulpSource = config.sourceHtml;
-    }
-    else if(args.jsx)
-    {
-        gulpSource = config.sourceReactComponents;
-    }
+//function move() 
+//{ 
+//    var gulpSource;
+//    if(args.html)
+//    {
+//        gulpSource = config.sourcelsHtml;
+//    }
+//    else if(args.jsx)
+//    {
+//        gulpSource = config.sourceReactComponents;
+//    }
 
-    return gulp.src(gulpSource)
-    .pipe(gulp.dest('./output'));
-};
+//    return gulp.src(gulpSource)
+//    .pipe(gulp.dest('./output'));
+//};
 
 // function qualityControl()
 // {
@@ -45,18 +45,29 @@ function move()
 //             .pipe($.jshint.reporter('jshint-stylish', { verbose: true }));
 // };
 
-function transformJsx() 
-{ 
+function transform_move_jsx() 
+{
     return gulp.src(config.sourceReactComponents)
     .pipe($.react())
-    .pipe(gulp.dest(output_development));
+    .pipe($.concat('react.js'))
+    .pipe(gulp.dest('./source/scripts/'));
 };
 
-function transformStyls() 
-{ 
+function merge_browserify_move_js()
+{
+    return gulp.src(config.sourceReactComponents)
+    .pipe($.react())
+    .pipe($.concat('app.js'))
+    .pipe($.browserify({ insertGlobals: true }))
+    .pipe(gulp.dest(config.output_development));
+};
+
+function transformStyls()
+{
     return gulp.src(config.sourceStyles)
     .pipe($.stylus())
-    .pipe(gulp.dest(output_development));
+    .pipe($.concat('style.css'))
+    .pipe(gulp.dest(config.output_development));
 };
 
 // function browserify() 
@@ -69,16 +80,32 @@ function transformStyls()
 
 function moveViews() 
 {
-  gulp.src(config.sourceHtml)
-  .pipe(gulp.dest(output_development));
+    gulp.src(config.sourceHtml)
+    .pipe(gulp.dest(config.output_development));
 };
 
+function move(source, destination)
+{
+    gulp.src(source)
+    .pipe(gulp.dest(destination));
+}
+function moveViews(destination)
+{
+    move(config.sourceHtml, destination);
+};
+
+function moveJs(destination)
+{
+    move(config.sourceJs, destination);
+};
 
 // gulp.task('quality-control', qualityControl);
-gulp.task('transform-move-Jsx', transformJsx);
+gulp.task('transform-move-jsx', transform_move_jsx);
 
-gulp.task('transform-styls', transformStyls);
+gulp.task('transform-move-styls', transformStyls);
 // gulp.task('browserify', browserify());
 
- gulp.task('dev', ['transform-styls','transform-move-Jsx']);
- gulp.task('prod', ['transform-styls','transform-move-Jsx']);
+gulp.task('dev', ['transform-styls','transform-move-jsx']);
+gulp.task('prod', ['transform-styls', 'transform-move-jsx']);
+gulp.task('default', ['dev', 'prod']);
+

@@ -14,7 +14,6 @@
     var score = 0;
 
 
-
     Array.matrix = function (m, n, initial)
     {
         var a, i, j, mat = [];

@@ -2,7 +2,8 @@ module.exports = function()
 {
 	var config = 
 	{
-		sourceJSFiles: ['./source/scripts/*.js'],
+	    sourceJSFiles: ['./source/scripts/*.js'],
+	    sourceJSPath: ['./source/scripts/'],
 		sourceReactComponents: ['./source/scripts/ReactComponents/*.jsx'],
 		sourceReactAppJsx: ['./source/app.jsx'],
 		sourceAllReact: ['./source/scripts/ReactComponents/*.jsx','./source/app.jsx'],
