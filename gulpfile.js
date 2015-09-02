@@ -1,111 +1,108 @@
 var gulp = require('gulp');
 var args = require('yargs');
-var config = require('./gulp.config')();
+var config = require('./gulp.config.js')();
+var streamqueue = require('streamqueue');
 var $ = require('gulp-load-plugins')({lazy: true});
 
-//jsx transform then concat to app.js
-//javascript concat to app.js
 //nodemodules concat to lib.js
-//styl transform and concat to style.css 
 
-function makeHTML(titleText, appjsFileName, styleFileName)
+gulp.task('do-js', do_js);
+
+function do_js(destination)
 {
-    var title = "<title>" + titleText + "</title>\n";
-    var app = "<script type='text/javascript' src='./" + appjsFileName + "'></script>\n";
-    var styling = "<link rel='stylesheet' type='text/css' href='" + styleFileName + "'> \n"; 
-    var head = "<head>\n" + title + app + styling +"</head> \n\n";
-    var body = "<body>\n <div id='anchor'></div>\n</body>\n";
-    var htmlString = "<!DOCTYPE html> \n" + "<html>\n"+ head + body +" </html>";
+    var stream = streamqueue({ objectMode: true });
+    stream.queue(gulp.src(config.sourceReactComponents)).pipe($.react());
+    stream.queue(gulp.src(config.sourceJS));
+    return stream.done()
+            .pipe($.concat('app.js'))
+            .pipe($.browserify({ insertGlobals: true }))
+            .pipe(gulp.dest(destination));
+}
 
-    return htmlString;
+//Code Quality Tasks
+function qualityControl()
+ {
+     return gulp.src(config.sourceJSFiles)
+             .pipe($.if(args.verbose, $.print()))
+             .pipe($.jscs())
+             .pipe($.jshint())
+             .pipe($.jshint.reporter('jshint-stylish', { verbose: true }));
+ };
+
+//Styles.css
+function do_css(destination)
+{
+    transform_styls();
+    merge_move_css(destination);
+    clean_intermediate_css_from_styl()
+}
+
+function transform_styls()
+{
+    return gulp.src(config.sourceStyleFiles)
+    .pipe($.stylus())
+
+    .pipe(gulp.dest('.'));
 };
 
-//function move() 
-//{ 
-//    var gulpSource;
-//    if(args.html)
-//    {
-//        gulpSource = config.sourcelsHtml;
-//    }
-//    else if(args.jsx)
-//    {
-//        gulpSource = config.sourceReactComponents;
-//    }
+function merge_move_css(destination)
+{
+    return gulp.src(config.sourceCss)
+    .pipe($.concat('style.css'))
+    .pipe($.browserify({ insertGlobals: true }))
+    .pipe(gulp.dest(destination));
+};
 
-//    return gulp.src(gulpSource)
-//    .pipe(gulp.dest('./output'));
-//};
+function clean_intermediate_css_from_styl()
+{
+    return del([sourceStyleFilesTransformed]);
+};
 
-// function qualityControl()
-// {
-//     return gulp.src(config.sourceJSFiles)
-//             .pipe($.if(args.verbose, $.print()))
-//             .pipe($.jscs())
-//             .pipe($.jshint())
-//             .pipe($.jshint.reporter('jshint-stylish', { verbose: true }));
-// };
+//App.js
+function do_react(destination)
+{
+    transform_jsx();
+    merge_browserify_move_js(destination);
+    clean_intermediate_js_from_jsx();
+}
 
-function transform_move_jsx() 
+function transform_jsx()
 {
     return gulp.src(config.sourceReactComponents)
     .pipe($.react())
-    .pipe($.concat('react.js'))
-    .pipe(gulp.dest('./source/scripts/'));
+    .pipe(gulp.dest('.'));
 };
 
-function merge_browserify_move_js()
+function merge_browserify_move_js(destination)
 {
     return gulp.src(config.sourceReactComponents)
-    .pipe($.react())
     .pipe($.concat('app.js'))
     .pipe($.browserify({ insertGlobals: true }))
-    .pipe(gulp.dest(config.output_development));
-};
-
-function transformStyls()
-{
-    return gulp.src(config.sourceStyles)
-    .pipe($.stylus())
-    .pipe($.concat('style.css'))
-    .pipe(gulp.dest(config.output_development));
-};
-
-// function browserify() 
-// { 
-//     return gulp.src(config.sourceReactAppJsx)
-//     .pipe($.react())
-//     .pipe($.browserify({insertGlobals : true}))
-//     .pipe(gulp.dest('./output'));
-// };
-
-function moveViews() 
-{
-    gulp.src(config.sourceHtml)
-    .pipe(gulp.dest(config.output_development));
-};
-
-function move(source, destination)
-{
-    gulp.src(source)
     .pipe(gulp.dest(destination));
+};
+
+function clean_intermediate_js_from_jsx()
+{
+    return del([sourceReactComponentsTransformed]);
+};
+
+//Lib.js
+function do_js_libs(destination)
+{
+    merge_browserify_move_js_dependencies(destination);
 }
-function moveViews(destination)
+
+function merge_browserify_move_js_dependencies(destination)
 {
-    move(config.sourceHtml, destination);
+    return gulp.src(config.sourceReactComponents)
+    .pipe($.concat('app.js'))
+    .pipe($.browserify({ insertGlobals: true }))
+    .pipe(gulp.dest(destination));
 };
 
-function moveJs(destination)
-{
-    move(config.sourceJs, destination);
-};
+//Gulp Tasks
 
-// gulp.task('quality-control', qualityControl);
-gulp.task('transform-move-jsx', transform_move_jsx);
-
-gulp.task('transform-move-styls', transformStyls);
-// gulp.task('browserify', browserify());
-
-gulp.task('dev', ['transform-styls','transform-move-jsx']);
-gulp.task('prod', ['transform-styls', 'transform-move-jsx']);
-gulp.task('default', ['dev', 'prod']);
+gulp.task('dev', do_js.bind(this, config.output_development));
+//gulp.task('prod', [transform_move_jsx.bind(this, config.output_production)]);
+//gulp.task('default', ['dev', 'prod']);
 

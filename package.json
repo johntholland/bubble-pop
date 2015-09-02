@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "devDependencies": {
     "browserify": "^11.0.1",
+    "del": "^2.0.0",
     "gulp": "^3.9.0",
     "gulp-browserify": "^0.5.1",
     "gulp-concat": "^2.6.0",
@@ -14,6 +15,7 @@
     "gulp-react": "^3.0.1",
     "gulp-stylus": "^2.0.6",
     "jshint-stylish": "^2.0.1",
+    "streamqueue": "^1.1.1",
     "stylus": "^0.52.0",
     "yargs": "^3.21.0"
   },

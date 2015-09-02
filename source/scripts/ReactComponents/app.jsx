@@ -1,3 +1,3 @@
-﻿var ScorePanel = require('./ReactComponents/ScorePanel.jsx');
+﻿//var ScorePanel = require('./ReactComponents/ScorePanel.jsx');
 
-React.render(<ScorePanel />, doc.getElementById("reactScore")); 
+//React.render(<ScorePanel />, doc.getElementById("reactScore")); 
