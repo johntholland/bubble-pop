@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "devDependencies": {
     "browserify": "^11.0.1",
-    "del": "^2.0.0",
+    "del": "^2.0.1",
     "gulp": "^3.9.0",
     "gulp-browserify": "^0.5.1",
     "gulp-concat": "^2.6.0",

@@ -2,7 +2,14 @@ module.exports = function()
 {
 	var config = 
 	{
-	    sourceHtml: './source/views/**/*.html',
+	    sourceLibDependencies:
+            ['./bower_components/lodash/dist/lodash.min.js',
+              './bower_components/postal.js/lib/postal.min.js',
+              './bower_components/three.js/three.min.js',
+              './bower_components/react/react.js',
+              './bower_components/oboe/dist/oboe-browser.min.js'],
+
+        sourceHtml: './source/views/**/*.html',
 
 	    sourceJS: './source/scripts/**/*.js',
 	    sourceReactComponents: './source/scripts/ReactComponents/**/*.jsx',
