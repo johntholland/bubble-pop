@@ -5,13 +5,14 @@ flex-button
     flex-grow: 1
     width: 200px
 
-bannerbar
+bannerBar
     display:flex
 
 body 
     margin: 0
     overflow: hidden
     background-color: #ff0059
+    
 
 .test
 {
