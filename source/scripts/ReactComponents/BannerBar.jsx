@@ -2,7 +2,7 @@
 ({
 	render: function(){return(<div>Banner</div>);}
 });
-React.render(<BannerBar />, document.getElementById("bannerBar")); 
+//React.render(<BannerBar />, document.getElementById("bannerBar")); 
 
 
 

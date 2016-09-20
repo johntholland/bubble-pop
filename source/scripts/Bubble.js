@@ -45,7 +45,8 @@
     {
 
         // initialize object to perform world/screen calculations
-        renderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
+        //renderer.setClearColor(new THREE.Color(0xEEEEEE, 1.0));
+
         renderer.setSize(window.innerWidth, window.innerHeight - 20);
         renderer.shadowMapEnabled = true;
 
@@ -60,14 +61,14 @@
         // backgroundMesh .material.depthWrite = false;
         // scene.add(backgroundMesh);
 
-        addCubes(scene);
+        //addCubes(scene);
 
 
         // position and point the camera to the center of the scene
-        camera.position.x = 13;
-        camera.position.y = 20;
-        camera.position.z = 90;
-        //camera.lookAt(scene.position);
+        camera.position.x = 0;
+        camera.position.y = 0;
+        camera.position.z = 200;
+
 
         // add spotlight for the shadows
         var spotLight = new THREE.SpotLight(0xffffff);
@@ -75,9 +76,63 @@
 
         scene.add(spotLight);
 
+        var CustomSinCurve = THREE.Curve.create(
+            function ( scale ) { //custom curve constructor
+                this.scale = (scale === undefined) ? 1 : scale;
+            },
+
+            function ( t ) { //getPoint: t is between 0-1
+                var tx = t * 3 - 1.5,
+                    ty = Math.sin( 2 * Math.PI * t ),
+                    tz = 0;
+
+                return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
+            }
+        );
+
+        var findY = function(radius, x)
+        {
+            return Math.sqrt((radius * radius) - (x * x));
+        }
+
+        var radius = 25.0;
+        var spline = new THREE.SplineCurve3([
+
+            new THREE.Vector3(0, radius * -2, 0),
+            
+            new THREE.Vector3(radius + 4, radius * -1, 0),
+
+            new THREE.Vector3(radius * 1.5, 0, 0),
+            
+            new THREE.Vector3(radius + 4, radius , 0),
+
+            new THREE.Vector3(0, radius * 2, 0),
+
+           //new THREE.Vector3(radius, 0, 0),
+           //new THREE.Vector3(radius / 2.0, findY(radius, radius/2.0), 0),
+           //new THREE.Vector3(radius / 2.0, -1 * findY(radius, radius/2.0), 0)
+        ]);
+
+        //var path = new CustomSinCurve( 100 );
+        var path = spline;
+
+        var geometry = new THREE.TubeGeometry(
+            path,  //path
+            20,    //segments
+            3,     //radius
+            8,     //radiusSegments
+            false  //closed
+        );
+
+
+        var tubeMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+
+        scene.add(new THREE.Mesh( geometry, tubeMaterial ));
+
+        //camera.lookAt(geometry.position);
         // add the output of the renderer to the html element
         document.getElementById("WebGL-output").appendChild(renderer.domElement);
-        var scoreText = document.getElementById('score');
+        //var scoreText = document.getElementById('score');
 
         // call the render function
         renderer.render(scene, camera);

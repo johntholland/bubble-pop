@@ -3,7 +3,7 @@ var ScoreButton = React.createClass
   getInitialState: function()
   {
     return {counter: 0};
-  },
+  }, 
   
   handleClick: function()
   {
@@ -16,4 +16,4 @@ var ScoreButton = React.createClass
   }
 });
 
-React.render(<ScoreButton />, document.getElementById("reactScore"));
+//React.render(<ScoreButton />, document.getElementById("reactScore"));
